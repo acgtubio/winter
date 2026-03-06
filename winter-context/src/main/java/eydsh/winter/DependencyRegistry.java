@@ -1,5 +1,6 @@
-package com.eydsh.winter;
+package eydsh.winter;
 
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class DependencyRegistry {
@@ -9,7 +10,7 @@ public class DependencyRegistry {
         this.singletonDependencies = new ConcurrentHashMap<>();
     }
 
-    public void registerInjectables() {
+    public void registerInjectables(List<Class<?>> injectables) {
 
     }
 }
