@@ -1,3 +1,5 @@
+package com.eydsh.winter;
+
 import java.util.concurrent.ConcurrentHashMap;
 
 public class DependencyRegistry {

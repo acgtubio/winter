@@ -1,4 +1,6 @@
-package annotations;
+package eydsh.winter.annotations;
+
+import eydsh.winter.common.Scope;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -6,6 +8,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.FIELD, ElementType.CONSTRUCTOR, ElementType.PARAMETER})
-public @interface Inject {
+@Target(ElementType.TYPE)
+public @interface Injectable {
+    Scope value() default Scope.SINGLETON;
 }
