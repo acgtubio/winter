@@ -8,6 +8,11 @@
         <artifactId>winter</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
+    <packaging>pom</packaging>
+
+    <modules>
+        <module>helloworld</module>
+    </modules>
 
     <artifactId>examples</artifactId>
 
@@ -16,5 +21,20 @@
         <maven.compiler.target>25</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.eydsh</groupId>
+                <artifactId>winter-context</artifactId>
+                <version>1.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eydsh</groupId>
+                <artifactId>winter-core</artifactId>
+                <version>1.0-SNAPSHOT</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
 </project>

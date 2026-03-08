@@ -1,6 +1,5 @@
 package eydsh.winter;
 
-import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -12,10 +11,10 @@ public class PackageScannerTest {
     @Test
     public void testPackageScanner() {
         class SomeClass {
-            public List<Class<?>> run() throws IOException, URISyntaxException {
+            public List<Class<?>> run() throws IOException, URISyntaxException, ClassNotFoundException {
                 PackageScanner packageScanner = new PackageScanner();
 
-                return packageScanner.getInjectables(SomeClass.class);
+                return packageScanner.getClassesInPackage(SomeClass.class);
             }
         }
 
@@ -24,8 +23,9 @@ public class PackageScannerTest {
 
             // TODO: Add test here lmao.
         } catch (Exception e) {
+            System.out.println(e.getMessage());
+            System.out.println(e.getClass());
             System.out.println("womp womp");
-
         }
     }
 }
