@@ -11,10 +11,9 @@ import java.lang.reflect.Modifier;
 import java.net.JarURLConnection;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.List;
+import java.util.*;
 import java.util.jar.JarFile;
+import java.util.stream.Collectors;
 
 public class PackageScanner {
     private static final Logger LOGGER = LoggerFactory.getLogger(PackageScanner.class);
@@ -23,7 +22,7 @@ public class PackageScanner {
     public PackageScanner() {
     }
 
-    public List<Class<?>> getClassesInPackage(Class<?> clazz) throws IOException, URISyntaxException, ClassNotFoundException {
+    public Set<Class<?>> getClassesInPackage(Class<?> clazz) throws IOException, URISyntaxException, ClassNotFoundException {
         String packageName = this.getPackageName(clazz);
 
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
@@ -31,7 +30,7 @@ public class PackageScanner {
         String path =  packageName.replace('.', '/');
 
         Enumeration<URL> resources = classLoader.getResources(path);
-        List<Class<?>> classes = new ArrayList<>();
+        Set<Class<?>> classes = new HashSet<>();
 
 
         while (resources.hasMoreElements()) {
@@ -43,15 +42,15 @@ public class PackageScanner {
         return classes;
     }
 
-    public List<Class<?>> getInjectables(List<Class<?>> clazzes) {
-        return clazzes.stream().filter(this::isInjectable).toList();
+    public Set<Class<?>> getInjectables(Set<Class<?>> clazzes) {
+        return clazzes.stream().filter(this::isInjectable).collect(Collectors.toSet());
     }
 
-    public List<Class<?>> getComponents(List<Class<?>> clazzes) {
-        return clazzes.stream().filter(this::isComponent).toList();
+    public Set<Class<?>> getComponents(Set<Class<?>> clazzes) {
+        return clazzes.stream().filter(this::isComponent).collect(Collectors.toSet());
     }
 
-    private void scanClasses(URL url, List<Class<?>> classes, String packageName, ClassLoader classLoader) throws URISyntaxException, IOException, ClassNotFoundException {
+    private void scanClasses(URL url, Set<Class<?>> classes, String packageName, ClassLoader classLoader) throws URISyntaxException, IOException, ClassNotFoundException {
         String protocol = url.getProtocol();
 
         if (protocol.equals("file")) {
@@ -61,7 +60,7 @@ public class PackageScanner {
         }
     }
 
-    private void scanFiles(URL url, List<Class<?>> clazzes, String packageName, ClassLoader classLoader) throws URISyntaxException, ClassNotFoundException {
+    private void scanFiles(URL url, Set<Class<?>> clazzes, String packageName, ClassLoader classLoader) throws URISyntaxException, ClassNotFoundException {
         File file = new File(url.toURI());
 
         List<String> classPathCollection = new ArrayList<>();
@@ -86,7 +85,7 @@ public class PackageScanner {
         }
     }
 
-    private void scanJar(URL url, List<Class<?>> clazzes) throws URISyntaxException, IOException {
+    private void scanJar(URL url, Set<Class<?>> clazzes) throws URISyntaxException, IOException {
         File file = new File(url.toURI());
 
         scanClassInJar(url);

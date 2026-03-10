@@ -4,14 +4,14 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.List;
+import java.util.Set;
 
 public class PackageScannerTest {
 
     @Test
     public void testPackageScanner() {
         class SomeClass {
-            public List<Class<?>> run() throws IOException, URISyntaxException, ClassNotFoundException {
+            public Set<Class<?>> run() throws IOException, URISyntaxException, ClassNotFoundException {
                 PackageScanner packageScanner = new PackageScanner();
 
                 return packageScanner.getClassesInPackage(SomeClass.class);
@@ -19,7 +19,7 @@ public class PackageScannerTest {
         }
 
         try {
-            List<Class<?>> result = new SomeClass().run();
+            Set<Class<?>> result = new SomeClass().run();
 
             // TODO: Add test here lmao.
         } catch (Exception e) {
