@@ -5,13 +5,13 @@ import java.util.List;
 import java.util.Optional;
 
 public class DependencyGraph {
-    private List<DependencyNode> graph;
+    private final List<DependencyNode> graph;
 
     public DependencyGraph() {
         this.graph = new ArrayList<>();
     }
 
-    public void addDependency(Class<?> dependency, Class<?> parent) throws CircularDependencyException {
+    public void addDependency(Class<?> dependency, Class<?> parent) throws CircularDependencyException, NoSuchMethodException {
         this.addSingleDependency(dependency, parent);
     }
 
@@ -20,13 +20,8 @@ public class DependencyGraph {
      *
      * @param clazz The injectable to be tracked.
      */
-    public void registerNode(Class<?> clazz) {
-        Optional<DependencyNode> optionalParent = graph
-                .stream()
-                .filter(node ->
-                        node.getClassPath().equals(clazz.getName())
-                )
-                .findFirst();
+    public void registerNode(Class<?> clazz) throws NoSuchMethodException {
+        Optional<DependencyNode> optionalParent = this.getNode(clazz.getName());
 
         DependencyNode parentNode;
         if (optionalParent.isPresent()) {
@@ -37,13 +32,22 @@ public class DependencyGraph {
         graph.add(parentNode);
     }
 
-    public void addDependency(Iterable<Class<?>> dependency, Class<?> parent) throws CircularDependencyException {
+    public Optional<DependencyNode> getNode(String classPath) {
+        return graph
+                .stream()
+                .filter(node ->
+                        node.getClassPath().equals(classPath)
+                )
+                .findFirst();
+    }
+
+    public void addDependency(Iterable<Class<?>> dependency, Class<?> parent) throws CircularDependencyException, NoSuchMethodException {
         for (Class<?> clazz: dependency) {
             this.addSingleDependency(clazz, parent);
         }
     }
 
-    private void addSingleDependency(Class<?> dependency, Class<?> parent) throws CircularDependencyException {
+    private void addSingleDependency(Class<?> dependency, Class<?> parent) throws CircularDependencyException, NoSuchMethodException {
         Optional<DependencyNode> optionalParent = graph
                 .stream()
                 .filter(node ->
@@ -75,6 +79,7 @@ public class DependencyGraph {
         }
 
         childDependency.addParent(parentNode);
+        parentNode.addDependency(childDependency);
 
         boolean isAcyclic = checkAcyclic(childDependency, childDependency);
         if (!isAcyclic) {
@@ -99,13 +104,22 @@ public class DependencyGraph {
         return true;
     }
 
+    public List<DependencyNode> getGraph() {
+        return this.graph;
+    }
+
     @Override
     public String toString() {
         StringBuilder template = new StringBuilder();
         for (DependencyNode node : this.graph) {
             template.append(node.getClassPath());
             template.append(": ");
+            template.append("Parents: ");
             template.append(node.getParents());
+            template.append(" Dependencies: ");
+            template.append(node.getDependencies());
+            template.append(" Constructor: ");
+            template.append(node.getConstructor());
             template.append("\n");
         }
 

@@ -14,7 +14,11 @@ public class DependencyRegistryTest {
         Set<Class<?>> injectables = Set.of(TestClass1.class, TestClass2.class, TestClass3.class);
 
         registry.setInjectables(injectables);
-        registry.mapDependencies(injectables);
+        try {
+            registry.mapDependencies(injectables);
+        } catch (NoSuchMethodException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Test
@@ -27,10 +31,24 @@ public class DependencyRegistryTest {
         registry.setInjectables(injectables);
         registry.setComponents(components);
 
-        registry.mapDependencies(injectables);
-        registry.mapDependencies(components);
+        try {
+            registry.mapDependencies(injectables);
+            registry.mapDependencies(components);
+            System.out.println(registry.showGraph());
+        } catch (NoSuchMethodException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
-        System.out.println(registry.showGraph());
+    @Test
+    public void testStartRegistry() {
+        DependencyRegistry registry = new DependencyRegistry();
+
+        try {
+            registry.startDependencyRegistry(TestComponent2.class);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }

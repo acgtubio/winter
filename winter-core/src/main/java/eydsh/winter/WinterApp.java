@@ -4,15 +4,11 @@ import eydsh.winter.annotations.Winter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
-
 public class WinterApp {
-    private final PackageScanner scanner;
     private final DependencyRegistry dependencyRegistry;
     private static final Logger LOGGER = LoggerFactory.getLogger(WinterApp.class);
 
     public WinterApp() {
-        this.scanner = new PackageScanner();
         this.dependencyRegistry = new DependencyRegistry();
     }
 

@@ -8,16 +8,24 @@ public class DependencyGraphTest {
     public void testCyclicGraph() {
         DependencyGraph dependencyGraph = new DependencyGraph();
 
-        dependencyGraph.addDependency(PackageScanner.class, FileSource.class);
-        dependencyGraph.addDependency(FileSource.class, DependencyNode.class);
-        dependencyGraph.addDependency(DependencyNode.class, PackageScanner.class);
+        try {
+            dependencyGraph.addDependency(PackageScanner.class, FileSource.class);
+            dependencyGraph.addDependency(FileSource.class, DependencyNode.class);
+            dependencyGraph.addDependency(DependencyNode.class, PackageScanner.class);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Test
     public void testAcyclicGraph() {
         DependencyGraph dependencyGraph = new DependencyGraph();
 
-        dependencyGraph.addDependency(PackageScanner.class, FileSource.class);
-        dependencyGraph.addDependency(FileSource.class, DependencyNode.class);
+        try {
+            dependencyGraph.addDependency(PackageScanner.class, FileSource.class);
+            dependencyGraph.addDependency(FileSource.class, DependencyNode.class);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }
