@@ -41,13 +41,13 @@ public class DependencyGraph {
                 .findFirst();
     }
 
-    public void addDependency(Iterable<Class<?>> dependency, Class<?> parent) throws CircularDependencyException, NoSuchMethodException {
+    public void addDependency(Iterable<Class<?>> dependency, Class<?> parent) throws CircularDependencyException {
         for (Class<?> clazz: dependency) {
             this.addSingleDependency(clazz, parent);
         }
     }
 
-    private void addSingleDependency(Class<?> dependency, Class<?> parent) throws CircularDependencyException, NoSuchMethodException {
+    private void addSingleDependency(Class<?> dependency, Class<?> parent) throws CircularDependencyException {
         Optional<DependencyNode> optionalParent = graph
                 .stream()
                 .filter(node ->

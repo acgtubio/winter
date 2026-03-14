@@ -9,8 +9,6 @@ public class Validator {
     }
 
     public boolean validate() {
-        System.out.println("validated");
-
         return true;
     }
 }

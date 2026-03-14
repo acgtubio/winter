@@ -1,17 +1,13 @@
 package eydsh.winter;
 
 import eydsh.winter.annotations.Inject;
-import eydsh.winter.common.CircularDependencyException;
-import eydsh.winter.common.DependencyGraph;
-import eydsh.winter.common.DependencyNode;
-import eydsh.winter.common.UncontrolledDependencyException;
+import eydsh.winter.common.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Constructor;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 
 public class DependencyRegistry {
     private static final Logger LOGGER = LoggerFactory.getLogger(DependencyRegistry.class);
@@ -37,11 +33,28 @@ public class DependencyRegistry {
             this.mapDependencies(components);
 
             this.initializeDependencies(this.dependencyGraph);
-
-            System.out.println(this.singletonDependencies);
         } catch (Exception e) {
             LOGGER.error(e.getMessage());
         }
+    }
+
+    protected Optional<WinterRunner> getWinterRunner() {
+        Optional<DependencyNode> optionalRunnerNode = this.dependencyGraph.getGraph().stream().filter(node ->
+            WinterRunner.class.isAssignableFrom(node.getType())
+        ).findFirst();
+
+        if (optionalRunnerNode.isEmpty()) {
+            return Optional.empty();
+        }
+        DependencyNode runnerNode = optionalRunnerNode.get();
+
+        WinterRunner runner = (WinterRunner) this.singletonDependencies.get(runnerNode.getClassPath());
+
+        if (runner == null) {
+            return Optional.empty();
+        }
+
+        return Optional.of(runner);
     }
 
     protected void initializeDependencies(DependencyGraph graph) {
@@ -51,7 +64,7 @@ public class DependencyRegistry {
     }
 
     private boolean isInitialized(DependencyNode node) {
-        return this.singletonDependencies.contains(node.getClassPath());
+        return this.singletonDependencies.containsKey(node.getClassPath());
     }
 
     protected void initializeClass(DependencyNode node) {
@@ -72,6 +85,7 @@ public class DependencyRegistry {
         Constructor<?> constructor = node.getConstructor();
 
         try {
+            LOGGER.info("Instantiating {}", node.getClassPath());
             Object obj = constructor.newInstance(dependencies.toArray());
 
             this.singletonDependencies.put(node.getClassPath(), obj);
@@ -80,7 +94,7 @@ public class DependencyRegistry {
         }
     }
 
-    protected void mapDependencies(Set<Class<?>> injectables) throws NoSuchMethodException {
+    protected void mapDependencies(Iterable<Class<?>> injectables) throws NoSuchMethodException {
          for (Class<?> clazz : injectables) {
              this.dependencyGraph.registerNode(clazz);
 
@@ -92,7 +106,7 @@ public class DependencyRegistry {
                  continue;
              }
 
-             Set<Class<?>> constructorInjectables = this.scanConstructorDependencies(nominatedConstructor);
+             List<Class<?>> constructorInjectables = this.scanConstructorDependencies(nominatedConstructor);
              if (constructorInjectables == null || constructorInjectables.isEmpty()) {
                  continue;
              }
@@ -134,7 +148,7 @@ public class DependencyRegistry {
         return null;
     }
 
-    protected Set<Class<?>> scanConstructorDependencies(Constructor<?> constructor) throws UncontrolledDependencyException {
+    protected List<Class<?>> scanConstructorDependencies(Constructor<?> constructor) throws UncontrolledDependencyException {
         Class<?>[] parameters = constructor.getParameterTypes();
 
         boolean isValid = validateConstructorParameters(parameters);
@@ -142,7 +156,7 @@ public class DependencyRegistry {
             throw new UncontrolledDependencyException("Parameters are not controlled by Winter.");
         }
 
-        return Set.of(parameters);
+        return List.of(parameters);
     }
 
     /**
